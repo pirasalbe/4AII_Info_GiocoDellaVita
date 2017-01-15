@@ -13,7 +13,7 @@ namespace Gioco_della_Vita
 {
     public partial class Form1 : Form
     {
-        private Thread Fox, Rabbit, Carrot;
+        private Thread[] Character;
         private int nFox, nRabbit, nCarrot;
         private int[,] Frc, fRc, frC;
         private int pFrc, pfRc, pfrC;
@@ -270,12 +270,22 @@ namespace Gioco_della_Vita
             ShiftEventHandler(this, new CCampEventArgs(main));
 
             //start game
-            Fox = new Thread(new ThreadStart(Fox_Start));
-            Rabbit = new Thread(new ThreadStart(Rabbit_Start));
-            Carrot = new Thread(new ThreadStart(Carrot_Start));
-            Fox.Start();
-            Rabbit.Start();
-            Carrot.Start();
+            Character = new Thread[nFox + nRabbit + nCarrot];
+            for (int i = 0; i < nFox; i++)
+            {
+                Character[i] = new Thread(new ThreadStart(Fox_Start));
+            }
+            for(int i = 0; i < nRabbit; i++)
+            {
+                Character[i + nFox] = new Thread(new ThreadStart(Rabbit_Start)); ;
+            }
+            for (int i = 0; i < nCarrot; i++)
+            {
+                Character[i + nFox + nRabbit] = new Thread(new ThreadStart(Rabbit_Start));
+            }
+
+            for (int i = 0; i < Character.GetLength(0); i++)
+                Character[i].Start();
         }
 
         private void Fox_Start()
@@ -297,7 +307,6 @@ namespace Gioco_della_Vita
                     if (main.Elements[i].Alive())
                         oneAlive = true;
             }
-            Fox.Abort();
         }
 
         private void Rabbit_Start()
@@ -319,7 +328,6 @@ namespace Gioco_della_Vita
                     if (main.Elements[i + nFox].Alive())
                         oneAlive = true;
             }
-            Rabbit.Abort();
         }
 
         private void Carrot_Start()
@@ -341,7 +349,6 @@ namespace Gioco_della_Vita
                     if (main.Elements[i + nFox + nRabbit].Alive())
                         oneAlive = true;
             }
-            Carrot.Abort();
         }
 
         private void btn2_Click(object sender, EventArgs e)
@@ -349,9 +356,8 @@ namespace Gioco_della_Vita
             btn1.Enabled = true;
             try
             {
-                Fox.Abort();
-                Rabbit.Abort();
-                Carrot.Abort();
+                for (int i = 0; i < Character.GetLength(0); i++)
+                    Character[i].Abort();
             }
             catch (Exception exc)
             {
