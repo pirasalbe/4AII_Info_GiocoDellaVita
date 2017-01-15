@@ -12,6 +12,7 @@ namespace Gioco_della_Vita
         private int mPointLife;
         private TypeAnimals mType = TypeAnimals.Nothing, mTypeSearch = TypeAnimals.Nothing, mTypeAvoid = TypeAnimals.Nothing;
         private int mR, mC;
+        private int[] mOldPos = new int[2];
 
         //property
         public int PointLife
@@ -88,6 +89,18 @@ namespace Gioco_della_Vita
             }
         }
 
+        public int[] OldPos
+        {
+            get
+            {
+                return mOldPos;
+            }
+            set
+            {
+                mOldPos = value;
+            }
+        }
+
         //events
         public event EventHandler Died;
         public event EventHandler Eaten;
@@ -155,6 +168,11 @@ namespace Gioco_della_Vita
             //not death character
             if (Alive())
             {
+                //save old position
+                OldPos[0] = R;
+                OldPos[1] = C;
+
+                //find new position
                 NextMove = FindPosition(Table);
                 R = NextMove[0];
                 C = NextMove[1];
@@ -622,6 +640,8 @@ namespace Gioco_della_Vita
             if (PointLife > 0 && Type != 0)
             {
                 PointLife--;
+
+                OnShift(new CCampEventArgs(Table));
             }
             else
             {

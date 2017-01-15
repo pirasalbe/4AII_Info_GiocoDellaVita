@@ -13,7 +13,7 @@ namespace Gioco_della_Vita
 {
     public partial class Form1 : Form
     {
-        private Thread[] Character;
+        private Thread Fox, Rabbit, Carrot;
         private int nFox, nRabbit, nCarrot;
         private int[,] Frc, fRc, frC;
         private int pFrc, pfRc, pfrC;
@@ -270,22 +270,12 @@ namespace Gioco_della_Vita
             ShiftEventHandler(this, new CCampEventArgs(main));
 
             //start game
-            Character = new Thread[nFox + nRabbit + nCarrot];
-            for (int i = 0; i < nFox; i++)
-            {
-                Character[i] = new Thread(new ThreadStart(Fox_Start));
-            }
-            for(int i = 0; i < nRabbit; i++)
-            {
-                Character[i + nFox] = new Thread(new ThreadStart(Rabbit_Start)); ;
-            }
-            for (int i = 0; i < nCarrot; i++)
-            {
-                Character[i + nFox + nRabbit] = new Thread(new ThreadStart(Rabbit_Start));
-            }
-
-            for (int i = 0; i < Character.GetLength(0); i++)
-                Character[i].Start();
+            Fox = new Thread(new ThreadStart(Fox_Start));
+            Rabbit = new Thread(new ThreadStart(Rabbit_Start));
+            Carrot = new Thread(new ThreadStart(Carrot_Start));
+            Fox.Start();
+            Rabbit.Start();
+            Carrot.Start();
         }
 
         private void Fox_Start()
@@ -307,6 +297,7 @@ namespace Gioco_della_Vita
                     if (main.Elements[i].Alive())
                         oneAlive = true;
             }
+            Fox.Abort();
         }
 
         private void Rabbit_Start()
@@ -328,6 +319,7 @@ namespace Gioco_della_Vita
                     if (main.Elements[i + nFox].Alive())
                         oneAlive = true;
             }
+            Rabbit.Abort();
         }
 
         private void Carrot_Start()
@@ -349,6 +341,7 @@ namespace Gioco_della_Vita
                     if (main.Elements[i + nFox + nRabbit].Alive())
                         oneAlive = true;
             }
+            Carrot.Abort();
         }
 
         private void btn2_Click(object sender, EventArgs e)
@@ -356,8 +349,23 @@ namespace Gioco_della_Vita
             btn1.Enabled = true;
             try
             {
-                for (int i = 0; i < Character.GetLength(0); i++)
-                    Character[i].Abort();
+                Fox.Abort();
+            }
+            catch (Exception exc)
+            {
+
+            }
+            try
+            {
+                Rabbit.Abort();
+            }
+            catch (Exception exc)
+            {
+
+            }
+            try
+            {
+                Carrot.Abort();
             }
             catch (Exception exc)
             {
@@ -433,427 +441,9 @@ namespace Gioco_della_Vita
 
         public void ShiftEventHandler(object sender, EventArgs e)
         {
-            CCampEventArgs a = e as CCampEventArgs;
-            if (a == null)
-                return;
-
             if (this.textBox1.InvokeRequired)
             {
                 CallShiftEventHandller d = new CallShiftEventHandller(ShiftEventHandler);
-                this.Invoke(d, new object[] { sender, a });
-            }
-            else
-            {
-                //set default
-                defaultValue(false);
-
-                //chose picture for every elements
-                var foxPic = new Bitmap(Properties.Resources.Fox_Full, new Size(width, height));
-                var rabbitPic = new Bitmap(Properties.Resources.Rabbit_Full, new Size(width, height));
-                var carrotPic = new Bitmap(Properties.Resources.Carrot_Full, new Size(width, height));
-
-                for (int i = 0; i < a.Table.Elements.GetLength(0); i++)
-                    if ((a.Table.Elements[i] as CFox) != null) //fox
-                    {
-                        if (a.Table.Elements[i].PointLife > 20 && a.Table.Elements[i].PointLife <= 50)
-                            foxPic = new Bitmap(Properties.Resources.Fox_Half, new Size(width, height));
-                        else
-                            if (a.Table.Elements[i].PointLife > 0 && a.Table.Elements[i].PointLife <= 20)
-                                foxPic = new Bitmap(Properties.Resources.Fox_AlmostDeath, new Size(width, height));
-                    }
-                    else
-                        if ((a.Table.Elements[i] as CRabbit) != null) //rabbit
-                        {
-                            if (a.Table.Elements[i].PointLife > 20 && a.Table.Elements[i].PointLife <= 50)
-                                rabbitPic = new Bitmap(Properties.Resources.Rabbit_Half, new Size(width, height));
-                            else
-                                if (a.Table.Elements[i].PointLife > 0 && a.Table.Elements[i].PointLife <= 20)
-                                    rabbitPic = new Bitmap(Properties.Resources.Rabbit_AlmostDeath, new Size(width, height));
-                        }
-                        else
-                            if ((a.Table.Elements[i] as CCarrot) != null) //carrot
-                            {
-                                if (a.Table.Elements[i].PointLife > 20 && a.Table.Elements[i].PointLife <= 50)
-                                    carrotPic = new Bitmap(Properties.Resources.Carrot_Half, new Size(width, height));
-                                else
-                                    if (a.Table.Elements[i].PointLife > 0 && a.Table.Elements[i].PointLife <= 20)
-                                        carrotPic = new Bitmap(Properties.Resources.Carrot_AlmostDeath, new Size(width, height));
-                            }
-
-                //setting position
-                var picTab = foxPic;
-
-                for (int i = 0; i < a.Table.Elements.GetLength(0); i++)
-                {
-                    if ((a.Table.Elements[i] as CRabbit) != null) //rabbit
-                        picTab = rabbitPic;
-                    else
-                        if ((a.Table.Elements[i] as CCarrot) != null) //carrot
-                            picTab = carrotPic;
-
-                    if (a.Table.Elements[i].Alive()) //if it is in the camp
-                        switch (a.Table.Elements[i].R)
-                        {
-                            case 0:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn0x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn0x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn0x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn0x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn0x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn0x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn0x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn0x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn0x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn0x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 1:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn1x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn1x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn1x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn1x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn1x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn1x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn1x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn1x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn1x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn1x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 2:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn2x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn2x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn2x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn2x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn2x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn2x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn2x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn2x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn2x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn2x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 3:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn3x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn3x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn3x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn3x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn3x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn3x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn3x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn3x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn3x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn3x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 4:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn4x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn4x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn4x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn4x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn4x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn4x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn4x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn4x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn4x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn4x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 5:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn5x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn5x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn5x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn5x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn5x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn5x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn5x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn5x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn5x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn5x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 6:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn6x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn6x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn6x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn6x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn6x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn6x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn6x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn6x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn6x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn6x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 7:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn7x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn7x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn7x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn7x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn7x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn7x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn7x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn7x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn7x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn7x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 8:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn8x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn8x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn8x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn8x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn8x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn8x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn8x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn8x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn8x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn8x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                            case 9:
-                                switch (a.Table.Elements[i].C)
-                                {
-                                    case 0:
-                                        btn9x0.Image = picTab;
-                                        break;
-                                    case 1:
-                                        btn9x1.Image = picTab;
-                                        break;
-                                    case 2:
-                                        btn9x2.Image = picTab;
-                                        break;
-                                    case 3:
-                                        btn9x3.Image = picTab;
-                                        break;
-                                    case 4:
-                                        btn9x4.Image = picTab;
-                                        break;
-                                    case 5:
-                                        btn9x5.Image = picTab;
-                                        break;
-                                    case 6:
-                                        btn9x6.Image = picTab;
-                                        break;
-                                    case 7:
-                                        btn9x7.Image = picTab;
-                                        break;
-                                    case 8:
-                                        btn9x8.Image = picTab;
-                                        break;
-                                    case 9:
-                                        btn9x9.Image = picTab;
-                                        break;
-                                }
-                                break;
-                        }
-                }
-            }
-        }
-
-        public void ShiftSingleEventHandler(object sender, EventArgs e)
-        {
-            if (this.textBox1.InvokeRequired)
-            {
-                CallShiftEventHandller d = new CallShiftEventHandller(ShiftSingleEventHandler);
                 this.Invoke(d, new object[] { sender, e });
             }
             else
@@ -904,360 +494,720 @@ namespace Gioco_della_Vita
                     if ((senter as CCarrot) != null) //carrot
                         picTab = carrotPic;
 
-                if (senter.Alive()) //if it is in the camp
-                    switch (senter.R)
+                //draw element
+                #region draw
+                switch (senter.R)
+                {
+                    case 0:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn0x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn0x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn0x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn0x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn0x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn0x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn0x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn0x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn0x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn0x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 1:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn1x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn1x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn1x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn1x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn1x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn1x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn1x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn1x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn1x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn1x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 2:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn2x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn2x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn2x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn2x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn2x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn2x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn2x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn2x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn2x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn2x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 3:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn3x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn3x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn3x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn3x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn3x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn3x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn3x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn3x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn3x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn3x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 4:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn4x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn4x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn4x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn4x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn4x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn4x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn4x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn4x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn4x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn4x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 5:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn5x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn5x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn5x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn5x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn5x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn5x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn5x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn5x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn5x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn5x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 6:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn6x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn6x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn6x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn6x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn6x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn6x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn6x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn6x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn6x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn6x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 7:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn7x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn7x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn7x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn7x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn7x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn7x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn7x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn7x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn7x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn7x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 8:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn8x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn8x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn8x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn8x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn8x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn8x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn8x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn8x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn8x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn8x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                    case 9:
+                        switch (senter.C)
+                        {
+                            case 0:
+                                btn9x0.Image = picTab;
+                                break;
+                            case 1:
+                                btn9x1.Image = picTab;
+                                break;
+                            case 2:
+                                btn9x2.Image = picTab;
+                                break;
+                            case 3:
+                                btn9x3.Image = picTab;
+                                break;
+                            case 4:
+                                btn9x4.Image = picTab;
+                                break;
+                            case 5:
+                                btn9x5.Image = picTab;
+                                break;
+                            case 6:
+                                btn9x6.Image = picTab;
+                                break;
+                            case 7:
+                                btn9x7.Image = picTab;
+                                break;
+                            case 8:
+                                btn9x8.Image = picTab;
+                                break;
+                            case 9:
+                                btn9x9.Image = picTab;
+                                break;
+                        }
+                        break;
+                }
+                #endregion
+
+                //remove old element
+                #region remove
+                if (senter as CCarrot == null)
+                    switch (senter.OldPos[0])
                     {
                         case 0:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn0x0.Image = picTab;
+                                    btn0x0.Image = null;
                                     break;
                                 case 1:
-                                    btn0x1.Image = picTab;
+                                    btn0x1.Image = null;
                                     break;
                                 case 2:
-                                    btn0x2.Image = picTab;
+                                    btn0x2.Image = null;
                                     break;
                                 case 3:
-                                    btn0x3.Image = picTab;
+                                    btn0x3.Image = null;
                                     break;
                                 case 4:
-                                    btn0x4.Image = picTab;
+                                    btn0x4.Image = null;
                                     break;
                                 case 5:
-                                    btn0x5.Image = picTab;
+                                    btn0x5.Image = null;
                                     break;
                                 case 6:
-                                    btn0x6.Image = picTab;
+                                    btn0x6.Image = null;
                                     break;
                                 case 7:
-                                    btn0x7.Image = picTab;
+                                    btn0x7.Image = null;
                                     break;
                                 case 8:
-                                    btn0x8.Image = picTab;
+                                    btn0x8.Image = null;
                                     break;
                                 case 9:
-                                    btn0x9.Image = picTab;
+                                    btn0x9.Image = null;
                                     break;
                             }
                             break;
                         case 1:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn1x0.Image = picTab;
+                                    btn1x0.Image = null;
                                     break;
                                 case 1:
-                                    btn1x1.Image = picTab;
+                                    btn1x1.Image = null;
                                     break;
                                 case 2:
-                                    btn1x2.Image = picTab;
+                                    btn1x2.Image = null;
                                     break;
                                 case 3:
-                                    btn1x3.Image = picTab;
+                                    btn1x3.Image = null;
                                     break;
                                 case 4:
-                                    btn1x4.Image = picTab;
+                                    btn1x4.Image = null;
                                     break;
                                 case 5:
-                                    btn1x5.Image = picTab;
+                                    btn1x5.Image = null;
                                     break;
                                 case 6:
-                                    btn1x6.Image = picTab;
+                                    btn1x6.Image = null;
                                     break;
                                 case 7:
-                                    btn1x7.Image = picTab;
+                                    btn1x7.Image = null;
                                     break;
                                 case 8:
-                                    btn1x8.Image = picTab;
+                                    btn1x8.Image = null;
                                     break;
                                 case 9:
-                                    btn1x9.Image = picTab;
+                                    btn1x9.Image = null;
                                     break;
                             }
                             break;
                         case 2:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn2x0.Image = picTab;
+                                    btn2x0.Image = null;
                                     break;
                                 case 1:
-                                    btn2x1.Image = picTab;
+                                    btn2x1.Image = null;
                                     break;
                                 case 2:
-                                    btn2x2.Image = picTab;
+                                    btn2x2.Image = null;
                                     break;
                                 case 3:
-                                    btn2x3.Image = picTab;
+                                    btn2x3.Image = null;
                                     break;
                                 case 4:
-                                    btn2x4.Image = picTab;
+                                    btn2x4.Image = null;
                                     break;
                                 case 5:
-                                    btn2x5.Image = picTab;
+                                    btn2x5.Image = null;
                                     break;
                                 case 6:
-                                    btn2x6.Image = picTab;
+                                    btn2x6.Image = null;
                                     break;
                                 case 7:
-                                    btn2x7.Image = picTab;
+                                    btn2x7.Image = null;
                                     break;
                                 case 8:
-                                    btn2x8.Image = picTab;
+                                    btn2x8.Image = null;
                                     break;
                                 case 9:
-                                    btn2x9.Image = picTab;
+                                    btn2x9.Image = null;
                                     break;
                             }
                             break;
                         case 3:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn3x0.Image = picTab;
+                                    btn3x0.Image = null;
                                     break;
                                 case 1:
-                                    btn3x1.Image = picTab;
+                                    btn3x1.Image = null;
                                     break;
                                 case 2:
-                                    btn3x2.Image = picTab;
+                                    btn3x2.Image = null;
                                     break;
                                 case 3:
-                                    btn3x3.Image = picTab;
+                                    btn3x3.Image = null;
                                     break;
                                 case 4:
-                                    btn3x4.Image = picTab;
+                                    btn3x4.Image = null;
                                     break;
                                 case 5:
-                                    btn3x5.Image = picTab;
+                                    btn3x5.Image = null;
                                     break;
                                 case 6:
-                                    btn3x6.Image = picTab;
+                                    btn3x6.Image = null;
                                     break;
                                 case 7:
-                                    btn3x7.Image = picTab;
+                                    btn3x7.Image = null;
                                     break;
                                 case 8:
-                                    btn3x8.Image = picTab;
+                                    btn3x8.Image = null;
                                     break;
                                 case 9:
-                                    btn3x9.Image = picTab;
+                                    btn3x9.Image = null;
                                     break;
                             }
                             break;
                         case 4:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn4x0.Image = picTab;
+                                    btn4x0.Image = null;
                                     break;
                                 case 1:
-                                    btn4x1.Image = picTab;
+                                    btn4x1.Image = null;
                                     break;
                                 case 2:
-                                    btn4x2.Image = picTab;
+                                    btn4x2.Image = null;
                                     break;
                                 case 3:
-                                    btn4x3.Image = picTab;
+                                    btn4x3.Image = null;
                                     break;
                                 case 4:
-                                    btn4x4.Image = picTab;
+                                    btn4x4.Image = null;
                                     break;
                                 case 5:
-                                    btn4x5.Image = picTab;
+                                    btn4x5.Image = null;
                                     break;
                                 case 6:
-                                    btn4x6.Image = picTab;
+                                    btn4x6.Image = null;
                                     break;
                                 case 7:
-                                    btn4x7.Image = picTab;
+                                    btn4x7.Image = null;
                                     break;
                                 case 8:
-                                    btn4x8.Image = picTab;
+                                    btn4x8.Image = null;
                                     break;
                                 case 9:
-                                    btn4x9.Image = picTab;
+                                    btn4x9.Image = null;
                                     break;
                             }
                             break;
                         case 5:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn5x0.Image = picTab;
+                                    btn5x0.Image = null;
                                     break;
                                 case 1:
-                                    btn5x1.Image = picTab;
+                                    btn5x1.Image = null;
                                     break;
                                 case 2:
-                                    btn5x2.Image = picTab;
+                                    btn5x2.Image = null;
                                     break;
                                 case 3:
-                                    btn5x3.Image = picTab;
+                                    btn5x3.Image = null;
                                     break;
                                 case 4:
-                                    btn5x4.Image = picTab;
+                                    btn5x4.Image = null;
                                     break;
                                 case 5:
-                                    btn5x5.Image = picTab;
+                                    btn5x5.Image = null;
                                     break;
                                 case 6:
-                                    btn5x6.Image = picTab;
+                                    btn5x6.Image = null;
                                     break;
                                 case 7:
-                                    btn5x7.Image = picTab;
+                                    btn5x7.Image = null;
                                     break;
                                 case 8:
-                                    btn5x8.Image = picTab;
+                                    btn5x8.Image = null;
                                     break;
                                 case 9:
-                                    btn5x9.Image = picTab;
+                                    btn5x9.Image = null;
                                     break;
                             }
                             break;
                         case 6:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn6x0.Image = picTab;
+                                    btn6x0.Image = null;
                                     break;
                                 case 1:
-                                    btn6x1.Image = picTab;
+                                    btn6x1.Image = null;
                                     break;
                                 case 2:
-                                    btn6x2.Image = picTab;
+                                    btn6x2.Image = null;
                                     break;
                                 case 3:
-                                    btn6x3.Image = picTab;
+                                    btn6x3.Image = null;
                                     break;
                                 case 4:
-                                    btn6x4.Image = picTab;
+                                    btn6x4.Image = null;
                                     break;
                                 case 5:
-                                    btn6x5.Image = picTab;
+                                    btn6x5.Image = null;
                                     break;
                                 case 6:
-                                    btn6x6.Image = picTab;
+                                    btn6x6.Image = null;
                                     break;
                                 case 7:
-                                    btn6x7.Image = picTab;
+                                    btn6x7.Image = null;
                                     break;
                                 case 8:
-                                    btn6x8.Image = picTab;
+                                    btn6x8.Image = null;
                                     break;
                                 case 9:
-                                    btn6x9.Image = picTab;
+                                    btn6x9.Image = null;
                                     break;
                             }
                             break;
                         case 7:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn7x0.Image = picTab;
+                                    btn7x0.Image = null;
                                     break;
                                 case 1:
-                                    btn7x1.Image = picTab;
+                                    btn7x1.Image = null;
                                     break;
                                 case 2:
-                                    btn7x2.Image = picTab;
+                                    btn7x2.Image = null;
                                     break;
                                 case 3:
-                                    btn7x3.Image = picTab;
+                                    btn7x3.Image = null;
                                     break;
                                 case 4:
-                                    btn7x4.Image = picTab;
+                                    btn7x4.Image = null;
                                     break;
                                 case 5:
-                                    btn7x5.Image = picTab;
+                                    btn7x5.Image = null;
                                     break;
                                 case 6:
-                                    btn7x6.Image = picTab;
+                                    btn7x6.Image = null;
                                     break;
                                 case 7:
-                                    btn7x7.Image = picTab;
+                                    btn7x7.Image = null;
                                     break;
                                 case 8:
-                                    btn7x8.Image = picTab;
+                                    btn7x8.Image = null;
                                     break;
                                 case 9:
-                                    btn7x9.Image = picTab;
+                                    btn7x9.Image = null;
                                     break;
                             }
                             break;
                         case 8:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn8x0.Image = picTab;
+                                    btn8x0.Image = null;
                                     break;
                                 case 1:
-                                    btn8x1.Image = picTab;
+                                    btn8x1.Image = null;
                                     break;
                                 case 2:
-                                    btn8x2.Image = picTab;
+                                    btn8x2.Image = null;
                                     break;
                                 case 3:
-                                    btn8x3.Image = picTab;
+                                    btn8x3.Image = null;
                                     break;
                                 case 4:
-                                    btn8x4.Image = picTab;
+                                    btn8x4.Image = null;
                                     break;
                                 case 5:
-                                    btn8x5.Image = picTab;
+                                    btn8x5.Image = null;
                                     break;
                                 case 6:
-                                    btn8x6.Image = picTab;
+                                    btn8x6.Image = null;
                                     break;
                                 case 7:
-                                    btn8x7.Image = picTab;
+                                    btn8x7.Image = null;
                                     break;
                                 case 8:
-                                    btn8x8.Image = picTab;
+                                    btn8x8.Image = null;
                                     break;
                                 case 9:
-                                    btn8x9.Image = picTab;
+                                    btn8x9.Image = null;
                                     break;
                             }
                             break;
                         case 9:
-                            switch (senter.C)
+                            switch (senter.OldPos[1])
                             {
                                 case 0:
-                                    btn9x0.Image = picTab;
+                                    btn9x0.Image = null;
                                     break;
                                 case 1:
-                                    btn9x1.Image = picTab;
+                                    btn9x1.Image = null;
                                     break;
                                 case 2:
-                                    btn9x2.Image = picTab;
+                                    btn9x2.Image = null;
                                     break;
                                 case 3:
-                                    btn9x3.Image = picTab;
+                                    btn9x3.Image = null;
                                     break;
                                 case 4:
-                                    btn9x4.Image = picTab;
+                                    btn9x4.Image = null;
                                     break;
                                 case 5:
-                                    btn9x5.Image = picTab;
+                                    btn9x5.Image = null;
                                     break;
                                 case 6:
-                                    btn9x6.Image = picTab;
+                                    btn9x6.Image = null;
                                     break;
                                 case 7:
-                                    btn9x7.Image = picTab;
+                                    btn9x7.Image = null;
                                     break;
                                 case 8:
-                                    btn9x8.Image = picTab;
+                                    btn9x8.Image = null;
                                     break;
                                 case 9:
-                                    btn9x9.Image = picTab;
+                                    btn9x9.Image = null;
                                     break;
                             }
                             break;
                     }
+                #endregion
             }
         }
     }
