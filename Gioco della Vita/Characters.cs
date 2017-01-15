@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Gioco_della_Vita
 {
     class CCharacter
     {
+        public Thread ThisThread;
         public enum TypeAnimals { Nothing, Fox, Rabbit, Carrot };
         private int mPointLife;
         private TypeAnimals mType = TypeAnimals.Nothing, mTypeSearch = TypeAnimals.Nothing, mTypeAvoid = TypeAnimals.Nothing;
         private int mR, mC;
         private int[] mOldPos = new int[2];
+        protected CCamp Table;
 
-        //property
+        #region property
         public int PointLife
         {
             get
@@ -101,6 +104,8 @@ namespace Gioco_della_Vita
             }
         }
 
+        #endregion
+
         //events
         public event EventHandler Died;
         public event EventHandler Eaten;
@@ -144,15 +149,55 @@ namespace Gioco_della_Vita
             Type = 0;
             TypeSearch = TypeAnimals.Nothing;
             TypeAvoid = TypeAnimals.Nothing;
+            ThisThread = new Thread(new ThreadStart(Thread_Start));
         }
 
-        protected CCharacter(int R, int C)
+        protected CCharacter(CCamp Table)
+        {
+            PointLife = 0;
+            Type = 0;
+            TypeSearch = TypeAnimals.Nothing;
+            TypeAvoid = TypeAnimals.Nothing;
+            ThisThread = new Thread(new ThreadStart(Thread_Start));
+            this.Table = Table;
+        }
+
+        protected CCharacter(int R, int C, CCamp Table)
         {
             this.R = R;
             this.C = C;
+            this.OldPos[0] = R;
+            this.OldPos[1] = C;
+            ThisThread = new Thread(new ThreadStart(Thread_Start));
+            this.Table = Table;
         }
 
-        //methods
+        #region methods
+        /// <summary>
+        /// Start Thread of this element
+        /// </summary>
+        private void Thread_Start()
+        {
+            bool oneAlive = true;
+            Random a = new Random(DateTime.Now.Millisecond);
+            OnShift(new CCampEventArgs(Table));
+            while (oneAlive)
+            {
+                System.Threading.Thread.Sleep(a.Next(300, 2001));
+                if (this.Alive()) //if is still alive
+                {
+                    this.Move();
+                    System.Threading.Thread.Sleep(75);
+                }
+
+                //verify if one is alive
+                oneAlive = false;
+                if (this.Alive())
+                    oneAlive = true;
+            }
+            ThisThread.Abort();
+        }
+
         /// <summary>
         /// Find next position
         /// </summary>
@@ -160,7 +205,7 @@ namespace Gioco_della_Vita
         /// <param name="PosCi">Initial Column</param>
         /// <param name="Table">Table where game is played</param>
         /// <returns>An int[] of 2 elements</returns>
-        public virtual void Move(CCamp Table)
+        public virtual void Move()
         {
             //no shift
             int[] NextMove = { R, C };
@@ -173,11 +218,14 @@ namespace Gioco_della_Vita
                 OldPos[1] = C;
 
                 //find new position
-                NextMove = FindPosition(Table);
-                R = NextMove[0];
-                C = NextMove[1];
+                lock (Table)
+                {
+                    NextMove = FindPosition();
+                    R = NextMove[0];
+                    C = NextMove[1];
 
-                OnShift(new CCampEventArgs(Table));
+                    OnShift(new CCampEventArgs(Table));
+                }
             }
             else
                 Death();
@@ -190,13 +238,13 @@ namespace Gioco_della_Vita
         /// <param name="PosCi">Initial Column</param>
         /// <param name="Table">Table where game is played</param>
         /// <returns>An int[] of 2 elements</returns>
-        public virtual int[] FindPosition(CCamp Table)
+        public virtual int[] FindPosition()
         {
             //no shift
             int[] NextMove = { R, C };
 
             //find next position
-            NextMove = Possibility(Table);
+            NextMove = Possibility();
 
             //shift without eat
             if (Table.BlankSpace(NextMove[0], NextMove[1]) && Alive())
@@ -232,12 +280,13 @@ namespace Gioco_della_Vita
         /// <param name="TypeSearch">What to eat</param>
         /// <param name="Table">Table where game is played</param>
         /// <returns>An int[] of 2 elements</returns>
-        protected virtual int[] Possibility(CCamp Table)
+        protected virtual int[] Possibility()
         {
             int[] NextPos = new int[2]; //posizione nella quale andare
             int[,] NearType = new int[Table.Side * Table.Side, 2]; //all near type
             double[] Distance = new double[3]; //distance, r, c with NearType
 
+            #region find element
             //initializing NearType
             for (int a = 0; a < NearType.GetLength(0); a++)
                 NearType[a, 1] = -1;
@@ -276,12 +325,14 @@ namespace Gioco_della_Vita
                 else
                     continua = false;
             }
+            #endregion
 
             //no solution
             if (Distance[1] == -1)
             {
+                #region no solution
                 if (TypeAvoid != TypeAnimals.Nothing)
-                    NextPos = Avoid(Table);
+                    NextPos = Avoid();
                 if (NextPos[0] == -1 || TypeAvoid == TypeAnimals.Nothing)
                 {
                     if (R != 0 && C != 0 && Table.BlankSpace(R - 1, C - 1))
@@ -332,10 +383,11 @@ namespace Gioco_della_Vita
                                                     NextPos[1] = C - 1;
                                                 }
                 }
-
+                #endregion
             }
             else //possible solution
             {
+                #region possible solution
                 bool end = false;
 
                 //distance
@@ -359,54 +411,60 @@ namespace Gioco_della_Vita
                     }
 
                     //setting up
-                    switch (l)
-                    {
-                        case 0:
-                            NextPos[0] = R;
-                            NextPos[1] = C + 1;
-                            break;
-                        case 1:
-                            NextPos[0] = R;
-                            NextPos[1] = C - 1;
-                            break;
-                        case 2:
-                            NextPos[0] = R + 1;
-                            NextPos[1] = C + 1;
-                            break;
-                        case 3:
-                            NextPos[0] = R + 1;
-                            NextPos[1] = C - 1;
-                            break;
-                        case 4:
-                            NextPos[0] = R + 1;
-                            NextPos[1] = C;
-                            break;
-                        case 5:
-                            NextPos[0] = R - 1;
-                            NextPos[1] = C + 1;
-                            break;
-                        case 6:
-                            NextPos[0] = R - 1;
-                            NextPos[1] = C - 1;
-                            break;
-                        case 7:
-                            NextPos[0] = R - 1;
-                            NextPos[1] = C;
-                            break;
-                    }
-
-                    //object on the way
-                    bool stop = false;
-                    for (int i = 0; i < Table.Elements.GetLength(0) && !stop; i++)
-                        if (Table.Elements[i].R == NextPos[0] && Table.Elements[i].C == NextPos[1])
-                            if (Table.Elements[i].Type != 0 && Table.Elements[i].Type != TypeSearch)
-                            {
-                                chance[l] = Table.Side * Table.Side + 1;
-                                stop = true;
-                            }
-                    if (stop == false)
+                    if (chance[l] == Table.Side * Table.Side + 1)
                         end = true;
+                    else
+                    {
+                        switch (l)
+                        {
+                            case 0:
+                                NextPos[0] = R;
+                                NextPos[1] = C + 1;
+                                break;
+                            case 1:
+                                NextPos[0] = R;
+                                NextPos[1] = C - 1;
+                                break;
+                            case 2:
+                                NextPos[0] = R + 1;
+                                NextPos[1] = C + 1;
+                                break;
+                            case 3:
+                                NextPos[0] = R + 1;
+                                NextPos[1] = C - 1;
+                                break;
+                            case 4:
+                                NextPos[0] = R + 1;
+                                NextPos[1] = C;
+                                break;
+                            case 5:
+                                NextPos[0] = R - 1;
+                                NextPos[1] = C + 1;
+                                break;
+                            case 6:
+                                NextPos[0] = R - 1;
+                                NextPos[1] = C - 1;
+                                break;
+                            case 7:
+                                NextPos[0] = R - 1;
+                                NextPos[1] = C;
+                                break;
+                        }
+
+                        //object on the way
+                        bool stop = false;
+                        for (int i = 0; i < Table.Elements.GetLength(0) && !stop; i++)
+                            if (Table.Elements[i].R == NextPos[0] && Table.Elements[i].C == NextPos[1])
+                                if (Table.Elements[i].Type != 0 && Table.Elements[i].Type != TypeSearch)
+                                {
+                                    chance[l] = Table.Side * Table.Side + 1;
+                                    stop = true;
+                                }
+                        if (stop == false)
+                            end = true;
+                    }
                 }
+                #endregion
             }
 
             return NextPos;
@@ -417,12 +475,12 @@ namespace Gioco_della_Vita
         /// </summary>
         /// <param name="Table">Table where game is played</param>
         /// <returns>An int[] of 2 elements</returns>
-        public virtual int[] Avoid(CCamp Table)
+        public virtual int[] Avoid()
         {
             int[,] AvoidPosition = new int[8, 2]; //nothing to avoid
             int[] AvoidPos = { -1, -1 };
 
-            //try all possible position
+            #region try all possible position
             if (R != 0 && C != 0)
             {
                 AvoidPosition[0, 0] = R - 1;
@@ -463,6 +521,7 @@ namespace Gioco_della_Vita
                 AvoidPosition[7, 0] = R;
                 AvoidPosition[7, 1] = C - 1;
             }
+            #endregion
 
             //exclude dangerous position
             for (int k = 0; k < 8; k++)
@@ -486,7 +545,7 @@ namespace Gioco_della_Vita
                 }
             }
 
-            //change position
+            #region change position
             if (find != -1)
             {
                 switch (find)
@@ -565,6 +624,7 @@ namespace Gioco_della_Vita
                         break;
                 }
             }
+            #endregion
 
             return AvoidPos;
         }
@@ -590,14 +650,15 @@ namespace Gioco_della_Vita
             PointLife = 0;
             Type = TypeAnimals.Nothing;
         }
+        #endregion
 
     }
 
     class CFox : CCharacter
     {
         //builders
-        public CFox(int R, int C)
-            : base(R, C)
+        public CFox(int R, int C, CCamp Table)
+            : base(R, C, Table)
         {
             PointLife = 100;
             Type = TypeAnimals.Fox;
@@ -610,8 +671,8 @@ namespace Gioco_della_Vita
     class CRabbit : CCharacter
     {
         //builders
-        public CRabbit(int R, int C)
-            : base(R, C)
+        public CRabbit(int R, int C, CCamp Table)
+            : base(R, C, Table)
         {
             PointLife = 100;
             Type = TypeAnimals.Rabbit;
@@ -625,8 +686,8 @@ namespace Gioco_della_Vita
     class CCarrot : CCharacter
     {
         //builders
-        public CCarrot(int R, int C)
-            : base(R, C)
+        public CCarrot(int R, int C, CCamp Table)
+            : base(R, C, Table)
         {
             PointLife = 100;
             Type = TypeAnimals.Carrot;
@@ -634,7 +695,7 @@ namespace Gioco_della_Vita
         }
 
         //methods
-        public override void Move(CCamp Table)
+        public override void Move()
         {
             //not death character
             if (PointLife > 0 && Type != 0)

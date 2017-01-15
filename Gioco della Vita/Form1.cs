@@ -13,7 +13,6 @@ namespace Gioco_della_Vita
 {
     public partial class Form1 : Form
     {
-        private Thread Fox, Rabbit, Carrot;
         private int nFox, nRabbit, nCarrot;
         private int[,] Frc, fRc, frC;
         private int pFrc, pfRc, pfrC;
@@ -30,6 +29,10 @@ namespace Gioco_della_Vita
             defaultValue(true);
         }
 
+        /// <summary>
+        /// Reset value
+        /// </summary>
+        /// <param name="all">true if also variables</param>
         private void defaultValue(bool all)
         {
             if (all)
@@ -80,6 +83,7 @@ namespace Gioco_della_Vita
             }
 
             //set default
+            #region null
             btn0x0.Image = null;
             btn0x1.Image = null;
             btn0x2.Image = null;
@@ -180,6 +184,7 @@ namespace Gioco_della_Vita
             btn9x7.Image = null;
             btn9x8.Image = null;
             btn9x9.Image = null;
+            #endregion
         }
 
         private void cbx1_CheckedChanged(object sender, EventArgs e)
@@ -227,6 +232,7 @@ namespace Gioco_della_Vita
         private void btn1_Click(object sender, EventArgs e)
         {
             btn1.Enabled = false;
+            defaultValue(false);
             main = new CCamp(10, nFox, nRabbit, nCarrot);
 
             //setting starting position
@@ -270,107 +276,14 @@ namespace Gioco_della_Vita
             ShiftEventHandler(this, new CCampEventArgs(main));
 
             //start game
-            Fox = new Thread(new ThreadStart(Fox_Start));
-            Rabbit = new Thread(new ThreadStart(Rabbit_Start));
-            Carrot = new Thread(new ThreadStart(Carrot_Start));
-            Fox.Start();
-            Rabbit.Start();
-            Carrot.Start();
-        }
-
-        private void Fox_Start()
-        {
-            bool oneAlive = true;
-            while (oneAlive)
-            {
-                System.Threading.Thread.Sleep(250);
-                for (int i = 0; i < nFox; i++) //move every fox
-                    if (main.Elements[i].Alive()) //if is still alive
-                    {
-                        main.Elements[i].Move(main);
-                        System.Threading.Thread.Sleep(75);
-                    }
-
-                //verify if one is alive
-                oneAlive = false;
-                for (int i = 0; i < nFox; i++)
-                    if (main.Elements[i].Alive())
-                        oneAlive = true;
-            }
-            Fox.Abort();
-        }
-
-        private void Rabbit_Start()
-        {
-            bool oneAlive = true;
-            while (oneAlive)
-            {
-                System.Threading.Thread.Sleep(250);
-                for (int i = 0; i < nRabbit; i++)
-                    if (main.Elements[i + nFox].Alive())
-                    {
-                        main.Elements[i + nFox].Move(main);
-                        System.Threading.Thread.Sleep(75);
-                    }
-
-                //verify if one is alive
-                oneAlive = false;
-                for (int i = 0; i < nRabbit; i++)
-                    if (main.Elements[i + nFox].Alive())
-                        oneAlive = true;
-            }
-            Rabbit.Abort();
-        }
-
-        private void Carrot_Start()
-        {
-            bool oneAlive = true;
-            while (oneAlive)
-            {
-                System.Threading.Thread.Sleep(250);
-                for (int i = 0; i < nCarrot; i++)
-                    if (main.Elements[i + nFox + nRabbit].Alive())
-                    {
-                        main.Elements[i + nFox + nRabbit].Move(main);
-                        System.Threading.Thread.Sleep(75);
-                    }
-
-                //verify if one is alive
-                oneAlive = false;
-                for (int i = 0; i < nCarrot; i++)
-                    if (main.Elements[i + nFox + nRabbit].Alive())
-                        oneAlive = true;
-            }
-            Carrot.Abort();
+            main.StartThread();
         }
 
         private void btn2_Click(object sender, EventArgs e)
         {
             btn1.Enabled = true;
-            try
-            {
-                Fox.Abort();
-            }
-            catch (Exception exc)
-            {
-
-            }
-            try
-            {
-                Rabbit.Abort();
-            }
-            catch (Exception exc)
-            {
-
-            }
-            try
-            {
-                Carrot.Abort();
-            }
-            catch (Exception exc)
-            {
-
-            }
+            if (main != null)
+                main.AbortThread();
             defaultValue(true);
         }
 
@@ -385,7 +298,7 @@ namespace Gioco_della_Vita
             lblf.Text = nFox.ToString();
             try
             {
-                if (cbx1.Checked)
+                if (!cbx1.Checked)
                 {
                     Frc[pFrc, 0] = Int32.Parse(textBox1.Text);
                     Frc[pFrc, 1] = Int32.Parse(textBox2.Text);
@@ -404,7 +317,7 @@ namespace Gioco_della_Vita
             lblr.Text = nRabbit.ToString();
             try
             {
-                if (cbx2.Checked)
+                if (!cbx2.Checked)
                 {
                     fRc[pfRc, 0] = Int32.Parse(textBox4.Text);
                     fRc[pfRc, 1] = Int32.Parse(textBox3.Text);
@@ -423,7 +336,7 @@ namespace Gioco_della_Vita
             lblc.Text = nCarrot.ToString();
             try
             {
-                if (cbx3.Checked)
+                if (!cbx3.Checked)
                 {
                     frC[pfrC, 0] = Int32.Parse(textBox6.Text);
                     frC[pfrC, 1] = Int32.Parse(textBox5.Text);
@@ -493,6 +406,366 @@ namespace Gioco_della_Vita
                 else
                     if ((senter as CCarrot) != null) //carrot
                         picTab = carrotPic;
+
+                if (senter.PointLife == 0) //not setting
+                    picTab = null;
+
+                //remove old element
+                #region remove
+                switch (senter.OldPos[0])
+                {
+                    case 0:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn0x0.Image = null;
+                                break;
+                            case 1:
+                                btn0x1.Image = null;
+                                break;
+                            case 2:
+                                btn0x2.Image = null;
+                                break;
+                            case 3:
+                                btn0x3.Image = null;
+                                break;
+                            case 4:
+                                btn0x4.Image = null;
+                                break;
+                            case 5:
+                                btn0x5.Image = null;
+                                break;
+                            case 6:
+                                btn0x6.Image = null;
+                                break;
+                            case 7:
+                                btn0x7.Image = null;
+                                break;
+                            case 8:
+                                btn0x8.Image = null;
+                                break;
+                            case 9:
+                                btn0x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 1:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn1x0.Image = null;
+                                break;
+                            case 1:
+                                btn1x1.Image = null;
+                                break;
+                            case 2:
+                                btn1x2.Image = null;
+                                break;
+                            case 3:
+                                btn1x3.Image = null;
+                                break;
+                            case 4:
+                                btn1x4.Image = null;
+                                break;
+                            case 5:
+                                btn1x5.Image = null;
+                                break;
+                            case 6:
+                                btn1x6.Image = null;
+                                break;
+                            case 7:
+                                btn1x7.Image = null;
+                                break;
+                            case 8:
+                                btn1x8.Image = null;
+                                break;
+                            case 9:
+                                btn1x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 2:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn2x0.Image = null;
+                                break;
+                            case 1:
+                                btn2x1.Image = null;
+                                break;
+                            case 2:
+                                btn2x2.Image = null;
+                                break;
+                            case 3:
+                                btn2x3.Image = null;
+                                break;
+                            case 4:
+                                btn2x4.Image = null;
+                                break;
+                            case 5:
+                                btn2x5.Image = null;
+                                break;
+                            case 6:
+                                btn2x6.Image = null;
+                                break;
+                            case 7:
+                                btn2x7.Image = null;
+                                break;
+                            case 8:
+                                btn2x8.Image = null;
+                                break;
+                            case 9:
+                                btn2x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 3:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn3x0.Image = null;
+                                break;
+                            case 1:
+                                btn3x1.Image = null;
+                                break;
+                            case 2:
+                                btn3x2.Image = null;
+                                break;
+                            case 3:
+                                btn3x3.Image = null;
+                                break;
+                            case 4:
+                                btn3x4.Image = null;
+                                break;
+                            case 5:
+                                btn3x5.Image = null;
+                                break;
+                            case 6:
+                                btn3x6.Image = null;
+                                break;
+                            case 7:
+                                btn3x7.Image = null;
+                                break;
+                            case 8:
+                                btn3x8.Image = null;
+                                break;
+                            case 9:
+                                btn3x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 4:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn4x0.Image = null;
+                                break;
+                            case 1:
+                                btn4x1.Image = null;
+                                break;
+                            case 2:
+                                btn4x2.Image = null;
+                                break;
+                            case 3:
+                                btn4x3.Image = null;
+                                break;
+                            case 4:
+                                btn4x4.Image = null;
+                                break;
+                            case 5:
+                                btn4x5.Image = null;
+                                break;
+                            case 6:
+                                btn4x6.Image = null;
+                                break;
+                            case 7:
+                                btn4x7.Image = null;
+                                break;
+                            case 8:
+                                btn4x8.Image = null;
+                                break;
+                            case 9:
+                                btn4x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 5:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn5x0.Image = null;
+                                break;
+                            case 1:
+                                btn5x1.Image = null;
+                                break;
+                            case 2:
+                                btn5x2.Image = null;
+                                break;
+                            case 3:
+                                btn5x3.Image = null;
+                                break;
+                            case 4:
+                                btn5x4.Image = null;
+                                break;
+                            case 5:
+                                btn5x5.Image = null;
+                                break;
+                            case 6:
+                                btn5x6.Image = null;
+                                break;
+                            case 7:
+                                btn5x7.Image = null;
+                                break;
+                            case 8:
+                                btn5x8.Image = null;
+                                break;
+                            case 9:
+                                btn5x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 6:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn6x0.Image = null;
+                                break;
+                            case 1:
+                                btn6x1.Image = null;
+                                break;
+                            case 2:
+                                btn6x2.Image = null;
+                                break;
+                            case 3:
+                                btn6x3.Image = null;
+                                break;
+                            case 4:
+                                btn6x4.Image = null;
+                                break;
+                            case 5:
+                                btn6x5.Image = null;
+                                break;
+                            case 6:
+                                btn6x6.Image = null;
+                                break;
+                            case 7:
+                                btn6x7.Image = null;
+                                break;
+                            case 8:
+                                btn6x8.Image = null;
+                                break;
+                            case 9:
+                                btn6x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 7:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn7x0.Image = null;
+                                break;
+                            case 1:
+                                btn7x1.Image = null;
+                                break;
+                            case 2:
+                                btn7x2.Image = null;
+                                break;
+                            case 3:
+                                btn7x3.Image = null;
+                                break;
+                            case 4:
+                                btn7x4.Image = null;
+                                break;
+                            case 5:
+                                btn7x5.Image = null;
+                                break;
+                            case 6:
+                                btn7x6.Image = null;
+                                break;
+                            case 7:
+                                btn7x7.Image = null;
+                                break;
+                            case 8:
+                                btn7x8.Image = null;
+                                break;
+                            case 9:
+                                btn7x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 8:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn8x0.Image = null;
+                                break;
+                            case 1:
+                                btn8x1.Image = null;
+                                break;
+                            case 2:
+                                btn8x2.Image = null;
+                                break;
+                            case 3:
+                                btn8x3.Image = null;
+                                break;
+                            case 4:
+                                btn8x4.Image = null;
+                                break;
+                            case 5:
+                                btn8x5.Image = null;
+                                break;
+                            case 6:
+                                btn8x6.Image = null;
+                                break;
+                            case 7:
+                                btn8x7.Image = null;
+                                break;
+                            case 8:
+                                btn8x8.Image = null;
+                                break;
+                            case 9:
+                                btn8x9.Image = null;
+                                break;
+                        }
+                        break;
+                    case 9:
+                        switch (senter.OldPos[1])
+                        {
+                            case 0:
+                                btn9x0.Image = null;
+                                break;
+                            case 1:
+                                btn9x1.Image = null;
+                                break;
+                            case 2:
+                                btn9x2.Image = null;
+                                break;
+                            case 3:
+                                btn9x3.Image = null;
+                                break;
+                            case 4:
+                                btn9x4.Image = null;
+                                break;
+                            case 5:
+                                btn9x5.Image = null;
+                                break;
+                            case 6:
+                                btn9x6.Image = null;
+                                break;
+                            case 7:
+                                btn9x7.Image = null;
+                                break;
+                            case 8:
+                                btn9x8.Image = null;
+                                break;
+                            case 9:
+                                btn9x9.Image = null;
+                                break;
+                        }
+                        break;
+                }
+                #endregion
 
                 //draw element
                 #region draw
@@ -851,363 +1124,6 @@ namespace Gioco_della_Vita
                 }
                 #endregion
 
-                //remove old element
-                #region remove
-                if (senter as CCarrot == null)
-                    switch (senter.OldPos[0])
-                    {
-                        case 0:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn0x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn0x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn0x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn0x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn0x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn0x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn0x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn0x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn0x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn0x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 1:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn1x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn1x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn1x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn1x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn1x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn1x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn1x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn1x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn1x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn1x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 2:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn2x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn2x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn2x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn2x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn2x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn2x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn2x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn2x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn2x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn2x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 3:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn3x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn3x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn3x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn3x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn3x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn3x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn3x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn3x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn3x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn3x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 4:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn4x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn4x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn4x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn4x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn4x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn4x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn4x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn4x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn4x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn4x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 5:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn5x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn5x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn5x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn5x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn5x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn5x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn5x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn5x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn5x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn5x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 6:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn6x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn6x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn6x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn6x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn6x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn6x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn6x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn6x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn6x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn6x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 7:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn7x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn7x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn7x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn7x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn7x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn7x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn7x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn7x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn7x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn7x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 8:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn8x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn8x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn8x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn8x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn8x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn8x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn8x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn8x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn8x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn8x9.Image = null;
-                                    break;
-                            }
-                            break;
-                        case 9:
-                            switch (senter.OldPos[1])
-                            {
-                                case 0:
-                                    btn9x0.Image = null;
-                                    break;
-                                case 1:
-                                    btn9x1.Image = null;
-                                    break;
-                                case 2:
-                                    btn9x2.Image = null;
-                                    break;
-                                case 3:
-                                    btn9x3.Image = null;
-                                    break;
-                                case 4:
-                                    btn9x4.Image = null;
-                                    break;
-                                case 5:
-                                    btn9x5.Image = null;
-                                    break;
-                                case 6:
-                                    btn9x6.Image = null;
-                                    break;
-                                case 7:
-                                    btn9x7.Image = null;
-                                    break;
-                                case 8:
-                                    btn9x8.Image = null;
-                                    break;
-                                case 9:
-                                    btn9x9.Image = null;
-                                    break;
-                            }
-                            break;
-                    }
-                #endregion
             }
         }
     }

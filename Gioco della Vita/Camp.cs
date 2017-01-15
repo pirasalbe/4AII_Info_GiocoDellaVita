@@ -8,6 +8,7 @@ namespace Gioco_della_Vita
 {
     class CCamp
     {
+        public bool ThreadOn = false;
         private int mSide;
         private CCharacter[] mElements;
 
@@ -68,6 +69,13 @@ namespace Gioco_della_Vita
             Generate(Fox, Rabbit, Carrot);
         }
 
+        //methods
+        /// <summary>
+        /// Find if a space is free
+        /// </summary>
+        /// <param name="R">Row</param>
+        /// <param name="C">Column</param>
+        /// <returns>True if free</returns>
         public bool BlankSpace(int R, int C)
         {
             //find if there is an object
@@ -80,6 +88,12 @@ namespace Gioco_della_Vita
             return space;
         }
 
+        /// <summary>
+        /// Define elements position
+        /// </summary>
+        /// <param name="Fox">Number of fox</param>
+        /// <param name="Rabbit">Number of rabbit</param>
+        /// <param name="Carrot">Number of carrot</param>
         private void Generate(int Fox, int Rabbit, int Carrot)
         {
             //must generate random number position for every object
@@ -98,7 +112,7 @@ namespace Gioco_della_Vita
                 r = posR.Next(Side);
                 c = posC.Next(Side);
 
-                Elements[i] = new CFox(r, c);
+                Elements[i] = new CFox(r, c, this);
                 i++;
             }
 
@@ -108,7 +122,7 @@ namespace Gioco_della_Vita
                 r = posR.Next(Side);
                 c = posC.Next(Side);
 
-                Elements[i] = new CRabbit(r, c);
+                Elements[i] = new CRabbit(r, c, this);
                 i++;
             }
 
@@ -118,12 +132,16 @@ namespace Gioco_della_Vita
                 r = posR.Next(Side);
                 c = posC.Next(Side);
 
-                Elements[i] = new CCarrot(r, c);
+                Elements[i] = new CCarrot(r, c, this);
                 i++;
             }
 
         }
 
+        /// <summary>
+        /// Show a text table
+        /// </summary>
+        /// <returns>table</returns>
         public override string ToString()
         {
             string table = "";
@@ -152,5 +170,34 @@ namespace Gioco_della_Vita
             return table;
         }
 
+        /// <summary>
+        /// Start all elements' thread
+        /// </summary>
+        public void StartThread()
+        {
+            for (int i = 0; i < Elements.GetLength(0); i++)
+            {
+                System.Threading.Thread.Sleep(75);
+                Elements[i].ThisThread.Start();
+            }
+            ThreadOn = true;
+        }
+
+        /// <summary>
+        /// Stop all elements' thread
+        /// </summary>
+        public void AbortThread()
+        {
+            for (int i = 0; i < Elements.GetLength(0); i++)
+                try
+                {
+                    Elements[i].ThisThread.Abort();
+                }
+                catch (Exception exc)
+                {
+                    Console.WriteLine("Abort failed {0}", i);
+                }
+            ThreadOn = false;
+        }
     }
 }
