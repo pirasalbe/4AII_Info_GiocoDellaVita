@@ -143,6 +143,12 @@
             this.textBox6 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.btn2 = new System.Windows.Forms.Button();
+            this.addRabbit = new System.Windows.Forms.Button();
+            this.addFox = new System.Windows.Forms.Button();
+            this.addCarrot = new System.Windows.Forms.Button();
+            this.lblf = new System.Windows.Forms.Label();
+            this.lblr = new System.Windows.Forms.Label();
+            this.lblc = new System.Windows.Forms.Label();
             this.tlp1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -1408,7 +1414,7 @@
             this.cbx2.AutoSize = true;
             this.cbx2.Checked = true;
             this.cbx2.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbx2.Location = new System.Drawing.Point(725, 253);
+            this.cbx2.Location = new System.Drawing.Point(725, 265);
             this.cbx2.Name = "cbx2";
             this.cbx2.Size = new System.Drawing.Size(66, 17);
             this.cbx2.TabIndex = 3;
@@ -1421,7 +1427,7 @@
             this.cbx3.AutoSize = true;
             this.cbx3.Checked = true;
             this.cbx3.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbx3.Location = new System.Drawing.Point(725, 378);
+            this.cbx3.Location = new System.Drawing.Point(728, 413);
             this.cbx3.Name = "cbx3";
             this.cbx3.Size = new System.Drawing.Size(66, 17);
             this.cbx3.TabIndex = 4;
@@ -1446,7 +1452,6 @@
             this.textBox1.Size = new System.Drawing.Size(100, 20);
             this.textBox1.TabIndex = 6;
             this.textBox1.Text = "Row";
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // textBox2
             // 
@@ -1460,7 +1465,7 @@
             // textBox3
             // 
             this.textBox3.Enabled = false;
-            this.textBox3.Location = new System.Drawing.Point(725, 229);
+            this.textBox3.Location = new System.Drawing.Point(725, 241);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 20);
             this.textBox3.TabIndex = 10;
@@ -1469,7 +1474,7 @@
             // textBox4
             // 
             this.textBox4.Enabled = false;
-            this.textBox4.Location = new System.Drawing.Point(725, 203);
+            this.textBox4.Location = new System.Drawing.Point(725, 215);
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(100, 20);
             this.textBox4.TabIndex = 9;
@@ -1478,7 +1483,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(722, 187);
+            this.label2.Location = new System.Drawing.Point(722, 199);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(38, 13);
             this.label2.TabIndex = 8;
@@ -1487,7 +1492,7 @@
             // textBox5
             // 
             this.textBox5.Enabled = false;
-            this.textBox5.Location = new System.Drawing.Point(725, 350);
+            this.textBox5.Location = new System.Drawing.Point(728, 385);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(100, 20);
             this.textBox5.TabIndex = 13;
@@ -1496,7 +1501,7 @@
             // textBox6
             // 
             this.textBox6.Enabled = false;
-            this.textBox6.Location = new System.Drawing.Point(725, 324);
+            this.textBox6.Location = new System.Drawing.Point(728, 359);
             this.textBox6.Name = "textBox6";
             this.textBox6.Size = new System.Drawing.Size(100, 20);
             this.textBox6.TabIndex = 12;
@@ -1505,7 +1510,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(722, 308);
+            this.label3.Location = new System.Drawing.Point(725, 343);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(35, 13);
             this.label3.TabIndex = 11;
@@ -1524,11 +1529,74 @@
             this.btn2.UseVisualStyleBackColor = true;
             this.btn2.Click += new System.EventHandler(this.btn2_Click);
             // 
+            // addRabbit
+            // 
+            this.addRabbit.Location = new System.Drawing.Point(725, 288);
+            this.addRabbit.Name = "addRabbit";
+            this.addRabbit.Size = new System.Drawing.Size(75, 23);
+            this.addRabbit.TabIndex = 15;
+            this.addRabbit.Text = "Add";
+            this.addRabbit.UseVisualStyleBackColor = true;
+            this.addRabbit.Click += new System.EventHandler(this.addRabbit_Click);
+            // 
+            // addFox
+            // 
+            this.addFox.Location = new System.Drawing.Point(725, 146);
+            this.addFox.Name = "addFox";
+            this.addFox.Size = new System.Drawing.Size(75, 23);
+            this.addFox.TabIndex = 16;
+            this.addFox.Text = "Add";
+            this.addFox.UseVisualStyleBackColor = true;
+            this.addFox.Click += new System.EventHandler(this.addFox_Click);
+            // 
+            // addCarrot
+            // 
+            this.addCarrot.Location = new System.Drawing.Point(728, 436);
+            this.addCarrot.Name = "addCarrot";
+            this.addCarrot.Size = new System.Drawing.Size(75, 23);
+            this.addCarrot.TabIndex = 17;
+            this.addCarrot.Text = "Add";
+            this.addCarrot.UseVisualStyleBackColor = true;
+            this.addCarrot.Click += new System.EventHandler(this.addCarrot_Click);
+            // 
+            // lblf
+            // 
+            this.lblf.AutoSize = true;
+            this.lblf.Location = new System.Drawing.Point(766, 54);
+            this.lblf.Name = "lblf";
+            this.lblf.Size = new System.Drawing.Size(13, 13);
+            this.lblf.TabIndex = 18;
+            this.lblf.Text = "0";
+            // 
+            // lblr
+            // 
+            this.lblr.AutoSize = true;
+            this.lblr.Location = new System.Drawing.Point(766, 199);
+            this.lblr.Name = "lblr";
+            this.lblr.Size = new System.Drawing.Size(13, 13);
+            this.lblr.TabIndex = 19;
+            this.lblr.Text = "0";
+            // 
+            // lblc
+            // 
+            this.lblc.AutoSize = true;
+            this.lblc.Location = new System.Drawing.Point(763, 343);
+            this.lblc.Name = "lblc";
+            this.lblc.Size = new System.Drawing.Size(13, 13);
+            this.lblc.TabIndex = 20;
+            this.lblc.Text = "0";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(874, 579);
+            this.Controls.Add(this.lblc);
+            this.Controls.Add(this.lblr);
+            this.Controls.Add(this.lblf);
+            this.Controls.Add(this.addCarrot);
+            this.Controls.Add(this.addFox);
+            this.Controls.Add(this.addRabbit);
             this.Controls.Add(this.btn2);
             this.Controls.Add(this.textBox5);
             this.Controls.Add(this.textBox6);
@@ -1673,6 +1741,12 @@
         private System.Windows.Forms.Button btn2x5;
         private System.Windows.Forms.Button btn2;
         private System.Windows.Forms.Button btn5x2;
+        private System.Windows.Forms.Button addRabbit;
+        private System.Windows.Forms.Button addFox;
+        private System.Windows.Forms.Button addCarrot;
+        private System.Windows.Forms.Label lblf;
+        private System.Windows.Forms.Label lblr;
+        private System.Windows.Forms.Label lblc;
     }
 }
 
