@@ -14,15 +14,26 @@ namespace Gioco_della_Vita
 
             Console.WriteLine(prova1.ToString());
 
-            for (int i = 0; i < 120; i++)
+            for (int i = 0; i < prova1.Elements.GetLength(0); i++)
             {
-                prova1.Elements[1].Move(prova1);
-                prova1.Elements[0].Move(prova1);
-                prova1.Elements[2].Move(prova1);
-                Console.WriteLine(prova1.ToString());
-                Console.ReadKey();
+                prova1.Elements[i].Shift += ShiftEventHandler;
             }
 
+            for (int i = 0; i < 120; i++)
+            {
+                prova1.Elements[0].Move(prova1);
+                prova1.Elements[1].Move(prova1);
+                prova1.Elements[2].Move(prova1);
+            }
+
+                Console.ReadKey();
+        }
+
+        static void ShiftEventHandler(object sender, EventArgs e)
+        {
+            CCampEventArgs a = e as CCampEventArgs;
+            if (a != null)
+                Console.WriteLine(a.Table.ToString());
             Console.ReadKey();
         }
     }

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // Le informazioni generali relative a un assembly sono controllate dal seguente 
 // set di attributi. Per modificare le informazioni associate a un assembly
 // occorre quindi modificare i valori di questi attributi.
-[assembly: AssemblyTitle("2- Gioco della Vita")]
+[assembly: AssemblyTitle("3- Gioco della Vita")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("2- Gioco della Vita")]
+[assembly: AssemblyProduct("3- Gioco della Vita")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Se il progetto viene esposto a COM, il GUID che segue verrà utilizzato per creare l'ID della libreria dei tipi
-[assembly: Guid("6cb16430-5804-4625-9ed9-d4b7413b0479")]
+[assembly: Guid("b81ae00d-aba6-4fba-927f-8f5c3305bd72")]
 
 // Le informazioni sulla versione di un assembly sono costituite dai seguenti quattro valori:
 //

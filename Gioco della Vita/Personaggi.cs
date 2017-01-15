@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gioco_della_Vita
 {
-    class CCharacter 
+    class CCharacter
     {
         public enum TypeAnimals { Nothing, Fox, Rabbit, Carrot };
         private int mPointLife;
@@ -67,8 +67,8 @@ namespace Gioco_della_Vita
         public int R
         {
             get
-            { 
-                return mR; 
+            {
+                return mR;
             }
             set
             {
@@ -85,6 +85,42 @@ namespace Gioco_della_Vita
             set
             {
                 mC = value;
+            }
+        }
+
+        //events
+        public event EventHandler Died;
+        public event EventHandler Eaten;
+        public event EventHandler Shift;
+
+        /*public delegate void DiedEventHandler(EventArgs e);
+        public delegate void EatenEventHandler(EventArgs e);
+        public delegate void ShiftEventHandler(EventArgs e);*/
+
+        protected virtual void OnDied(EventArgs e)
+        {
+            EventHandler handler = Died;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected virtual void OnEaten(EventArgs e)
+        {
+            EventHandler handler = Eaten;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        protected virtual void OnShift(CCampEventArgs e)
+        {
+            EventHandler handler = Shift;
+            if (handler != null)
+            {
+                handler(this, e);
             }
         }
 
@@ -122,6 +158,7 @@ namespace Gioco_della_Vita
                 NextMove = FindPosition(Table);
                 R = NextMove[0];
                 C = NextMove[1];
+                OnShift(new CCampEventArgs(Table));
             }
             else
             {
@@ -162,8 +199,11 @@ namespace Gioco_della_Vita
                 if (PointLife > 100)
                     PointLife = 100;
                 i--;
+                OnEaten(new EventArgs());
+
                 Table.Elements[i].Type = 0;
                 Table.Elements[i].PointLife = 0;
+                Table.Elements[i].OnDied(new EventArgs());
             }
 
             return NextMove;
@@ -191,7 +231,7 @@ namespace Gioco_della_Vita
             var posNear = 0;
 
             //look for them
-            for (int i = 0; i < Table.Elements.GetLength(0);i++ )
+            for (int i = 0; i < Table.Elements.GetLength(0); i++)
                 if (Table.Elements[i].Type == TypeSearch)
                 {
                     NearType[posNear, 0] = Table.Elements[i].R;
@@ -277,7 +317,7 @@ namespace Gioco_della_Vita
                                                     NextPos[1] = C - 1;
                                                 }
                 }
-                    
+
             }
             else //possible solution
             {
@@ -356,7 +396,7 @@ namespace Gioco_della_Vita
 
             return NextPos;
         }
-        
+
         /// <summary>
         /// Found possible next position avoiding predators
         /// </summary>
@@ -520,7 +560,7 @@ namespace Gioco_della_Vita
     {
         //builders
         public CFox(int R, int C)
-            : base(R,C)
+            : base(R, C)
         {
             PointLife = 100;
             Type = TypeAnimals.Fox;

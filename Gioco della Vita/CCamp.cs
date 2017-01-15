@@ -79,7 +79,7 @@ namespace Gioco_della_Vita
 
             return space;
         }
-        
+
         private void Generate(int Fox, int Rabbit, int Carrot)
         {
             //must generate random number position for every object
@@ -101,7 +101,7 @@ namespace Gioco_della_Vita
                 Elements[i] = new CFox(r, c);
                 i++;
             }
-            
+
             //creating rabbits
             for (int R = 0; R < Rabbit; R++)
             {
@@ -133,7 +133,7 @@ namespace Gioco_della_Vita
             for (int i = 0; i < Side; i++)
                 for (int j = 0; j < Side; j++)
                     tab[i, j] = 0;
-            
+
             //adding elements
             for (int i = 0; i < Elements.GetLength(0); i++)
                 if (Elements[i].Type != 0)
