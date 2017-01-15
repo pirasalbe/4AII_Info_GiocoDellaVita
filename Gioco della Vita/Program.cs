@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Gioco_della_Vita
 {
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Punto di ingresso principale dell'applicazione.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
             CCamp prova1 = new CCamp();
 
             Console.WriteLine(prova1.ToString());
@@ -26,7 +33,7 @@ namespace Gioco_della_Vita
                 prova1.Elements[2].Move(prova1);
             }
 
-                Console.ReadKey();
+            Console.ReadKey();
         }
 
         static void ShiftEventHandler(object sender, EventArgs e)
