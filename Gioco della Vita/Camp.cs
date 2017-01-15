@@ -41,7 +41,7 @@ namespace Gioco_della_Vita
         {
             //initializing
             Elements = new CCharacter[3];
-            Side = 9;
+            Side = 10;
 
             //creating character
             Generate(1, 1, 1);

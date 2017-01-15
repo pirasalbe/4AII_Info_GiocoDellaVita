@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4- Gioco della Vita", "4- Gioco della Vita\4- Gioco della Vita.csproj", "{337E68AE-B285-4F9A-8A14-696D738DF326}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "7- Gioco della Vita", "7- Gioco della Vita\7- Gioco della Vita.csproj", "{2DCDFB78-8585-471C-BA5C-2E780C491D5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{337E68AE-B285-4F9A-8A14-696D738DF326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{337E68AE-B285-4F9A-8A14-696D738DF326}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{337E68AE-B285-4F9A-8A14-696D738DF326}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{337E68AE-B285-4F9A-8A14-696D738DF326}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DCDFB78-8585-471C-BA5C-2E780C491D5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DCDFB78-8585-471C-BA5C-2E780C491D5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DCDFB78-8585-471C-BA5C-2E780C491D5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DCDFB78-8585-471C-BA5C-2E780C491D5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

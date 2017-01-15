@@ -153,18 +153,16 @@ namespace Gioco_della_Vita
             int[] NextMove = { R, C };
 
             //not death character
-            if (PointLife > 0 && Type != 0)
+            if (Alive())
             {
                 NextMove = FindPosition(Table);
                 R = NextMove[0];
                 C = NextMove[1];
+
                 OnShift(new CCampEventArgs(Table));
             }
             else
-            {
-                Type = 0;
-                PointLife = 0;
-            }
+                Death();
         }
 
         /// <summary>
@@ -183,7 +181,7 @@ namespace Gioco_della_Vita
             NextMove = Possibility(Table);
 
             //shift without eat
-            if (Table.BlankSpace(NextMove[0], NextMove[1]) && PointLife > 0)
+            if (Table.BlankSpace(NextMove[0], NextMove[1]) && Alive())
                 PointLife--;
             else
             {
@@ -201,8 +199,7 @@ namespace Gioco_della_Vita
                 i--;
                 OnEaten(new EventArgs());
 
-                Table.Elements[i].Type = 0;
-                Table.Elements[i].PointLife = 0;
+                Table.Elements[i].Death();
                 Table.Elements[i].OnDied(new EventArgs());
             }
 
@@ -552,6 +549,28 @@ namespace Gioco_della_Vita
             }
 
             return AvoidPos;
+        }
+
+        /// <summary>
+        /// Know if this character is alive
+        /// </summary>
+        /// <returns>true if alive</returns>
+        public bool Alive()
+        {
+            bool alive = false;
+
+            if (PointLife != 0 && Type != TypeAnimals.Nothing)
+                alive = true;
+            return alive;
+        }
+
+        /// <summary>
+        /// Kill this character
+        /// </summary>
+        public void Death()
+        {
+            PointLife = 0;
+            Type = TypeAnimals.Nothing;
         }
 
     }
